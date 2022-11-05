@@ -11,7 +11,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmControllerTest {
-    Manager valid = new Manager();
+    private final Manager valid = new Manager();
 
     @Test
     void testFilmExceptionNameNull() {
@@ -20,8 +20,8 @@ public class FilmControllerTest {
                         ValidationException.class, () -> {
                             Film film = new Film(null,
                                     "adipisicing",
-                                    LocalDate.of(1967, 03, 25),
-                                    100L);
+                                    LocalDate.of(1967, 3, 25),
+                                    100);
                             valid.validationFilm(film);
                         });
         Assertions.assertNotNull(exception.getMessage());
@@ -35,8 +35,8 @@ public class FilmControllerTest {
                         ValidationException.class, () -> {
                             Film film = new Film(" ",
                                     "adipisicing",
-                                    LocalDate.of(1967, 03, 25),
-                                    100L);
+                                    LocalDate.of(1967, 3, 25),
+                                    100);
                             valid.validationFilm(film);
                         });
         Assertions.assertNotNull(exception.getMessage());
@@ -62,13 +62,28 @@ public class FilmControllerTest {
     }
 
     @Test
+    void testFilmExceptionDescriptionIsNull() {
+        ValidationException exception =
+                assertThrows(
+                        ValidationException.class, () -> {
+                            Film film = new Film("Film name",
+                                    null,
+                                    LocalDate.of(1900, 3, 25),
+                                    100L);
+                            valid.validationFilm(film);
+                        });
+        Assertions.assertNotNull(exception.getMessage());
+        Assertions.assertFalse(exception.getMessage().isBlank());
+    }
+
+    @Test
     void testFilmExceptionDurationIsPositive() {
         ValidationException exception =
                 assertThrows(
                         ValidationException.class, () -> {
                             Film film = new Film("Name",
                                     "Description",
-                                    LocalDate.of(1980, 03, 25),
+                                    LocalDate.of(1980, 3, 25),
                                     -200);
                             valid.validationFilm(film);
                         });
@@ -83,7 +98,7 @@ public class FilmControllerTest {
                         ValidationException.class, () -> {
                             Film film = new Film("Name",
                                     "Description",
-                                    LocalDate.of(1890, 03, 25),
+                                    LocalDate.of(1890, 3, 25),
                                     200);
                             valid.validationFilm(film);
                         });

@@ -16,8 +16,8 @@ import java.util.List;
 public class FilmController {
 
     private final HashMap<Integer, Film> films = new HashMap<>();
-    protected int generatedId = 0;
-    Manager valid = new Manager();
+    private int generatedId = 0;
+    private final Manager valid = new Manager();
 
     @GetMapping
     public List<Film> findAll() {
@@ -37,19 +37,18 @@ public class FilmController {
         film.setId(id);
         films.put(id, film);
         log.trace("Put film: {}", film.getName());
-    return film;
+        return film;
     }
 
     @PutMapping
     public Film put(@RequestBody Film film) {
         valid.validationFilm(film);
-        if (!films.containsKey(film.getId()) ) {
+        if (!films.containsKey(film.getId())) {
             log.error("Фильм не найден {}", film.getName());
             throw new ValidationException("Фильм " +
                     film.getName() + " не найден.");
         }
         int id = film.getId();
-        valid.validationFilm(film);
         films.put(id, film);
         log.info("Put film: {}", film.getName());
         return film;
@@ -57,7 +56,7 @@ public class FilmController {
 
     public int generatedId() {
         ++generatedId;
-        log.info("сгенерирован id {}",generatedId);
+        log.info("сгенерирован id {}", generatedId);
         return generatedId;
     }
 }
