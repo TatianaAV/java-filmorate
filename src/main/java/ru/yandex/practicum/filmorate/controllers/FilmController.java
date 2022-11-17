@@ -1,62 +1,75 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.manager.Manager;
+import ru.yandex.practicum.filmorate.exceptions.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private final HashMap<Integer, Film> films = new HashMap<>();
-    private int generatedId = 0;
-    private final Manager valid = new Manager();
+    private final InMemoryFilmStorage filmStorage;
+    private final FilmService filmService;
 
     @GetMapping
     public List<Film> findAll() {
-        log.info("Текущее количество фильмов: {}", films.size());
-        return new ArrayList<>(films.values());
+        return filmStorage.findAll();
+    }
+
+    //GET /films/popular?count={count} — возвращает список из первых count
+    @GetMapping(value = "/popular")
+    public List<Film> findAllSorted(
+            @RequestParam(defaultValue = "10", required = false) Integer count) {
+        if (count <= 0) {
+            throw new IncorrectParameterException("count");
+        }
+        log.info("== GetMapping: Популярные фильмы список из {} ==", count);
+        return filmService.findAllSorted(count);
+    }
+
+    //PUT /films/{id}/like/{userId} — пользователь ставит лайк фильму.
+    @PutMapping(value = "/{id}/like/{userId}")
+    public Film createLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+        log.info("== PutMapping: Like user {} с film {}==", userId, id);
+        return filmService.createLike(id, userId);
+    }
+
+    @GetMapping(value = "/{id}")
+    public Film getFilmById(@PathVariable("id") Long filmId) {
+        log.info("== GetMapping: Фильм с id {}==", filmId);
+        return filmStorage.getFilmById(filmId);
     }
 
     @PostMapping
     public Film create(@RequestBody Film film) {
-        valid.validationFilm(film);
-        if (films.containsValue(film)) {
-            log.error("фильм уже добавлен: {}", film.getName());
-            throw new ValidationException("Фильм " +
-                    film.getName() + " уже добавлен в коллекцию.");
-        }
-        int id = generatedId();
-        film.setId(id);
-        films.put(id, film);
-        log.trace("Put film: {}", film.getName());
-        return film;
+        log.info("==PostMapping: Фильм  {}==", film.getName());
+        return filmStorage.createFilm(film);
     }
 
     @PutMapping
-    public Film put(@RequestBody Film film) {
-        valid.validationFilm(film);
-        if (!films.containsKey(film.getId())) {
-            log.error("Фильм не найден {}", film.getName());
-            throw new ValidationException("Фильм " +
-                    film.getName() + " не найден.");
-        }
-        int id = film.getId();
-        films.put(id, film);
-        log.info("Put film: {}", film.getName());
-        return film;
+    public Film updateFilm(@RequestBody Film film) {
+        log.info("==PutMapping: Фильм с id {}==", film.getName());
+        return filmStorage.updateFilm(film);
     }
 
-    public int generatedId() {
-        ++generatedId;
-        log.info("сгенерирован id {}", generatedId);
-        return generatedId;
+    //DELETE /films/{id}/like/{userId} — пользователь удаляет лайк.
+    @DeleteMapping(value = "/{id}/like/{userId}")
+    public Film deleteLikeInFilm(@PathVariable("id") Long filmId, @PathVariable Long userId) {
+        log.info("== DeleteMapping: у Фильма с id {} удален лайк {} ==", filmId, userId);
+        return filmService.deleteLikeInFilm(filmId, userId);
+    }
+
+    @DeleteMapping
+    public boolean deleteFilm(Film film) {
+        log.info("== DeleteMapping: Фильм с id {} удален ==", film.getId());
+        return filmStorage.deleteFilm(film);
     }
 }

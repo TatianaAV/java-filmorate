@@ -1,24 +1,28 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.manager.Manager;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UserControllerTest {
-    Manager valid = new Manager();
+@RequiredArgsConstructor
+public class UserControllerValidationTest {
+    InMemoryUserStorage valid;
 
     @Test
     void testUserExceptionEmailNull() {
         ValidationException exception =
                 assertThrows(
                         ValidationException.class, () -> {
-                            User user = new User(null, "JohnDow", "John Dow", LocalDate.of(1945, 8, 25));
+                            User user = new User(null,
+                                    "JohnDow", "John Dow",
+                                    LocalDate.of(1945, 8, 25));
                             valid.validationUser(user);
                         });
         Assertions.assertNotNull(exception.getMessage());

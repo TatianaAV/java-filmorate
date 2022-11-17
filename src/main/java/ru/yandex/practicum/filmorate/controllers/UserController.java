@@ -1,67 +1,79 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.manager.Manager;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final Manager managerValidation = new Manager();
-    private final HashMap<Integer, User> users = new HashMap<>();
-    private int generatedId = 0;
+    private final InMemoryUserStorage userStorage;
+    private final UserService userService;
 
     @GetMapping
     public List<User> findAll() {
-        log.info("Текущее количество users: {}", users.values());
-        return new ArrayList<>(users.values());
+        log.info("GetMapping: список users");
+        return userStorage.findAll();
     }
 
     @PostMapping
     public User create(@RequestBody User user) {
-        User userValid = managerValidation.validationUser(user);
-        if (users.containsValue(user)) {
-            log.error("Пользователь уже зарегистрирован {}", user.getEmail());
-            throw new ValidationException("Пользователь с электронной почтой " +
-                    user.getEmail() + " уже зарегистрирован.");
-        }
-        int id = generatedId();
-        userValid.setId(id);
-        users.put(id, userValid);
-        log.info("POST users: {}", userValid.getId());
-        log.info("value users: {}", users.values());
-        return user;
+        log.info("==PostMapping: createUser {}==" , user);
+        return userStorage.createUser(user);
     }
 
     @PutMapping
-    public User put(@RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
-            log.error("Пользователь не найден PUT {}", user.getEmail());
-            throw new ValidationException("Пользователь " +
-                    user.getEmail() + " не найден.");
-        }
-        log.trace("пробуем PUT user {}", user);
-        int id = user.getId();
-        log.info("извлекаем id {}", id);
-        User validateUser = managerValidation.validationUser(user);
-        users.put(id, validateUser);
-        log.info("PUT users: {}", validateUser.getId());
-        log.info("value users: {}", users.values());
-        return validateUser;
+    public User updateUser(@RequestBody User user) {
+        log.info("==PutMapping:  {}==", user.getLogin());
+        return userStorage.updateUser(user);
     }
 
+    @GetMapping(value ="/{id}")
+    public User getUserById(@PathVariable("id") Long userId) {
+        log.info("==GetMapping: пользователь {}==", userId );
+        return userStorage.getUserById(userId);
+    }
 
-    public int generatedId() {
-        ++generatedId;
-        log.info("сгенерирован id {}", generatedId);
-        return generatedId;
+    //GET /users/{id}/friends/common/{otherId} — список друзей, общих с другим пользователем.
+    @GetMapping(value = "/{id}/friends/common/{otherId}")
+    public List<User> getListOfFriendsAssociatedWithOtherUsers(@PathVariable("id") Long userId,
+                                                               @PathVariable("otherId") Long otherId) {
+        log.info("==GetMapping: список друзей общих с другими пользователями {}==", userId + ", " + otherId);
+        return userService.getListOfFriendsAssociatedWithOtherUsers(userId, otherId);
+    }
+
+    // GET /users/{id}/friends — возвращаем список пользователей, являющихся его друзьями.
+    @GetMapping(value = "/{id}/friends")
+    public List<User> getFriendsOfUser(@PathVariable("id") Long userId) {
+        log.info("==GetMapping: список друзей юзера {}==", userId );
+        return userService.getFriendsOfUser(userId);
+    }
+
+    // PUT /users/{id}/friends/{friendId} — добавление в друзья.
+    @PutMapping(value = "/{id}/friends/{friendId}")
+    public User postFriend(@PathVariable("id") Long userId, @PathVariable Long friendId) {
+        log.info("==PutMapping: добавление в друзья {}==", userId + " friend " + friendId );
+        return userService.postFriend(userId, friendId);
+    }
+
+    //  DELETE /users/{id}/friends/{friendId} — удаление из друзей.
+    @DeleteMapping(value = "/{id}/friends/{friendId}")
+    public User deleteFriendsOfUser(@PathVariable("id") Long userId, @PathVariable("friendId") Long friendId) {
+        log.info("==DeleteMapping: удаление из друзей {}==", userId + " friend " + friendId );
+        return userService.deleteFriendsOfUser(userId, friendId);
+    }
+
+    @DeleteMapping
+    public void deleteUser(@RequestBody User user)  {
+        log.info("==DeleteMapping: удаление пользователя {}==", user.getEmail() );
+       userStorage.deleteUser(user);
     }
 }
 
