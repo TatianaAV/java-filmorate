@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -11,9 +10,8 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RequiredArgsConstructor
 public class FilmControllerTest {
-    private final InMemoryFilmStorage valid;
+    private final InMemoryFilmStorage valid = new InMemoryFilmStorage();
 
     @Test
     void testFilmExceptionNameNull() {
@@ -21,7 +19,7 @@ public class FilmControllerTest {
                 assertThrows(
                         ValidationException.class, () -> {
                             Film film = new Film(null,
-                                    "adipisicing",
+                                    "radicalising",
                                     LocalDate.of(1967, 3, 25),
                                     100);
                             valid.validationFilm(film);
@@ -36,7 +34,7 @@ public class FilmControllerTest {
                 assertThrows(
                         ValidationException.class, () -> {
                             Film film = new Film(" ",
-                                    "adipisicing",
+                                    "radicalising",
                                     LocalDate.of(1967, 3, 25),
                                     100);
                             valid.validationFilm(film);

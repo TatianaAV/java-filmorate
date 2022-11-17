@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -11,9 +10,9 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RequiredArgsConstructor
+
 public class UserControllerValidationTest {
-    InMemoryUserStorage valid;
+    InMemoryUserStorage valid = new InMemoryUserStorage();
 
     @Test
     void testUserExceptionEmailNull() {
@@ -45,9 +44,8 @@ public class UserControllerValidationTest {
     void testUserExceptionEmailNotAt() {
         ValidationException exception =
                 assertThrows(
-                        ValidationException.class, () -> {
-                            valid.validationUser(new User("yandex.ru", "JohnDow", "John Dow", LocalDate.of(1945, 8, 25)));
-                        });
+                        ValidationException.class, () -> valid.validationUser(new User("yandex.ru",
+                                "JohnDow", "John Dow", LocalDate.of(1945, 8, 25))));
         Assertions.assertNotNull(exception.getMessage());
         Assertions.assertFalse(exception.getMessage().isBlank());
     }
