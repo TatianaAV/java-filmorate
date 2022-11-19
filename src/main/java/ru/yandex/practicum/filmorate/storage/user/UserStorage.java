@@ -4,7 +4,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 
-interface UserStorage {
+public interface UserStorage {
 
     List<User> findAll();
 

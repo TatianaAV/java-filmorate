@@ -24,6 +24,14 @@ public class User {
         this.birthday = birthday;
     }
 
+    public void addFriend(Long id){
+        friends.add(id);
+    }
+
+    public void delFriend(Long id){
+        friends.remove(id);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
