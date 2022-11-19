@@ -15,8 +15,15 @@ public class Film {
     private String description;
     private LocalDate releaseDate;
     private long duration;
-
     private Set<Long> likes = new HashSet<>();
+
+     public void addLikes(Long idUser) {
+        likes.add(idUser);
+    }
+
+    public void delLikes(Long idUser) {
+        likes.remove(idUser);
+    }
 
     public Film(String name, String description, LocalDate releaseDate, long duration) {
         this.name = name;

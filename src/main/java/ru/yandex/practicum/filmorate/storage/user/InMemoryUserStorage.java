@@ -14,9 +14,6 @@ import java.util.List;
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    public HashMap<Long, User> getUsers() {
-        return users;
-    }
 
     private final HashMap<Long, User> users = new HashMap<>();
     private long generatedId = 0;
@@ -94,7 +91,7 @@ public class InMemoryUserStorage implements UserStorage {
                     user.getEmail() + " не найден.");
         }
         log.info("Пользователь удален {} ", user.getEmail());
-       users.remove(user.getId(), user);
+       users.remove(user.getId());
     }
 
     @Override

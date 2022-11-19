@@ -9,18 +9,15 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-    public HashMap<Long, Film> getFilms() {
-        log.info("== Количество фильмов {} ==", films.size());
-        return films;
-    }
+    protected TreeSet<Film> popularFilm =
+            new TreeSet<>(Comparator.nullsLast(Comparator.comparingInt(Film::getLikeSize)));
 
     private final HashMap<Long, Film> films = new HashMap<>();
     private long generatedId = 0;
@@ -43,9 +40,8 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.error("Напишите что-нибудь, но не больше 200 символов {}", film.getName());
             throw new ValidationException("Напишите что-нибудь, но не больше 200 символов");
         }
-        if (!StringUtils.hasLength(String.valueOf(film.getDuration()))//long не может быть null
+        if (!StringUtils.hasLength(String.valueOf(film.getDuration()))
                 || film.getDuration() < 0) {
-            //long duration автоматически подставляет 0, всё равно проверять на null?
             log.error("Продолжительность должна быть положительной {}", film.getDuration());
             throw new ValidationException("Продолжительность должна быть положительной");
         }
@@ -88,20 +84,20 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public boolean deleteFilm(Film film) {
-        if (!films.containsKey(film.getId())) {
-            log.error("Фильм не найден {}", film.getName());
-            throw new FilmNotFoundException("Фильм " +
-                    film.getName() + " не найден.");
-        }
-        log.info("Фильм  {} удален из коллекции", film.getName());
-        return films.remove(film.getId(), film);
-    }
-
-    @Override
     public List<Film> findAll() {
         log.info("Текущее количество фильмов: {}", films.size());
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public List<Film> sortedFilm(Integer count) {
+        popularFilm.addAll(films.values());
+        log.info("Фильмы отсортированы, count {}, кол-во фильмов {}", count, popularFilm.size());
+        return popularFilm
+                .descendingSet()
+                .stream()
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -113,5 +109,16 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         log.info("Фильм найден {}", filmId);
         return films.get(filmId);
+    }
+
+    @Override
+    public void deleteFilm(Film film) {
+        if (!films.containsKey(film.getId())) {
+            log.error("Фильм не найден {}", film.getName());
+            throw new FilmNotFoundException("Фильм " +
+                    film.getName() + " не найден.");
+        }
+        log.info("Фильм  {} удален из коллекции", film.getName());
+        films.remove(film.getId());
     }
 }
