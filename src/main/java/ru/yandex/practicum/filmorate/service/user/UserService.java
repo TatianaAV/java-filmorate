@@ -47,16 +47,13 @@ public class UserService {
     }
 
     public List<User> getListOfFriendsAssociatedWithOtherUsers(Long userId, Long otherId) {
-        List<User> friends = new ArrayList<>();
         User user = userStorage.getUserById(userId);
         User otherUser = userStorage.getUserById(otherId);
-        for (long id : user.getFriends()) {
-            if (otherUser.getFriends().contains(id)) {
-                friends.add(userStorage.getUserById(id));
-            }
-        }
         log.info("Cписок общих друзей пользователя {} и  {} ", userId, otherId);
-        return friends;
+        return user.getFriends().stream()
+                .filter(u -> otherUser.getFriends().contains(u))
+                .map(userStorage::getUserById)
+                .collect(Collectors.toList());
     }
 
     public List<User> findAll() {
