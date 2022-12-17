@@ -1,39 +1,28 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Data;
+import lombok.*;
+import org.springframework.data.annotation.Id;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
-
+    @Id
     private long id;
     private String email;
     private String login;
     private String name;
     private LocalDate birthday;
-    private Set<Long> friends = new HashSet<>();
 
-    public User(String email, String login, String name, LocalDate birthday) {
+    public User(String login, String name, String email, LocalDate birthday) {
         this.email = email;
         this.login = login;
         this.name = name;
         this.birthday = birthday;
-    }
-
-    /*Добавьте статус для связи «дружба» между двумя пользователями:
-    неподтверждённая — когда один пользователь отправил запрос на добавление другого пользователя в друзья,
-    подтверждённая — когда второй пользователь согласился на добавление.
-*/
-    public void addFriend(Long id){
-        friends.add(id);
-    }
-
-    public void delFriend(Long id){
-        friends.remove(id);
     }
 
     @Override
@@ -47,5 +36,16 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(email);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +  '\n' +
+                ", email='" + email +  '\n' +
+                ", login='" + login +  '\n' +
+                ", name='" + name +  '\n' +
+                ", birthday=" + birthday +
+                '}';
     }
 }
