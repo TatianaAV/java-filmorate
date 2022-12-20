@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class FilmControllerTest {
+public class FilmControllerValidationTest {
 
     Validation validation = new Validation();
 

@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -14,7 +13,6 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -36,9 +34,9 @@ public class DbUserStorage implements UserStorage {
 
 
     @Override
-    public User createUser(User user) {
+    public User create(User user) {
         log.info("Обращение в DbfilmStorage createUser");
-        String sql = "insert INTO public.USERS (username, email, login, birthday)" +
+        String sql = "insert INTO public.USERS (USER_NAME, email, login, birthday)" +
                 "values (?,?,?,?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         log.info("DbUserStorage insert sql");
@@ -63,9 +61,9 @@ public class DbUserStorage implements UserStorage {
 
 
     @Override
-    public User updateUser(User user) {
+    public User update(User user) {
         log.info("DbUserStorage updateUser(User user)");
-        String sql = "update USERS set USERNAME = ?,  LOGIN = ?, EMAIL = ?, BIRTHDAY = ? where USER_ID = ?";
+        String sql = "update USERS set USER_NAME = ?,  LOGIN = ?, EMAIL = ?, BIRTHDAY = ? where USER_ID = ?";
 
         int row = jdbcTemplate.update(sql,
                 user.getName(),
@@ -79,36 +77,28 @@ public class DbUserStorage implements UserStorage {
                     user.getId() + " не найден.");
         }
         log.info("PUT users обновлен пользователь: {}", user.getId());
-        return user;
+        return getById(user.getId());
     }
 
     @Override
-    public void deleteUser(User user) {
+    public void delete(User user) {
         long userId = user.getId();
-        String sqlQuery = "delete from USERS where user_id = ?";
-        int rows = jdbcTemplate.update(sqlQuery, userId);
+        int rows = jdbcTemplate.update(
+                "delete from USERS where user_id = ?", userId);
         log.info("Пользователь удален {},  {} row(s) deleted  ", user.getEmail(), rows);
     }
 
 
     @Override
-    public Optional<User> getUserById(long id) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from users where USER_ID = ?", id);
-        if (userRows.next()) {
-            User user = new User(
-                    userRows.getLong("user_id"),
-                    userRows.getString("email"),
-                    userRows.getString("login"),
-                    userRows.getString("username"),
-                    Objects.requireNonNull(userRows.getDate("birthday")).toLocalDate()
-            );
-            log.info("Найден пользователь: {} {}", user.getId(), user.getEmail());
-            return Optional.of(user);
-        } else {
-            log.info("Пользователь с идентификатором {} не найден.", id);
-            throw new UserNotFoundException("Пользователь  " +
-                    id + " не найден.");
+    public User getById(long id) {
+        final List<User> users = jdbcTemplate.query(
+                "select * from users where USER_ID = ?",
+                (rs, rowNum) -> makeUser(rs), id);
+        if (users.size() != 1) {
+            throw new UserNotFoundException("Not Found film id = " + id);
         }
+        log.info("filmStorage getFilmById(long filmId)");
+        return users.get(0);
     }
 
     public static User makeUser(ResultSet userRows) throws SQLException {
@@ -116,7 +106,7 @@ public class DbUserStorage implements UserStorage {
                 userRows.getLong("user_id"),
                 userRows.getString("email"),
                 userRows.getString("login"),
-                userRows.getString("username"),
+                userRows.getString("user_name"),
                 userRows.getDate("birthday").toLocalDate()
         );
     }

@@ -7,11 +7,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
-public class UserService  {
+public class UserService {
 
     private final Validation validation;
     private final UserStorage userStorage;
@@ -24,36 +23,36 @@ public class UserService  {
         this.friendsStorage = friendsStorage;
     }
 
-    public List<User> findAll() {
+    public List<User> getAll() {
         log.info("Обращение в userStorage List<User> findAll()");
         return userStorage.getAll();
     }
 
-    public User createUser(User user) {
+    public User create(User user) {
         validation.validation(user);
         log.info("Обращение в userStorage createUser(User user)");
-        return userStorage.createUser(user);
+        return userStorage.create(user);
     }
 
-    public User updateUser(User user) {
+    public User update(User user) {
         validation.validation(user);
         log.info("Обращение в userStorage");
-        return userStorage.updateUser(user);
+        return userStorage.update(user);
     }
 
-    public Optional<User> getUserById(Long userId) {
+    public User getById(Long userId) {
         log.info("Обращение в userStorage");
-        return userStorage.getUserById(userId);
+        return userStorage.getById(userId);
     }
 
-    public void deleteUser(User user) {
+    public void delete(User user) {
         log.info("Обращение в userStorage");
-        userStorage.deleteUser(user);
+        userStorage.delete(user);
     }
 
 
     public List<User> getFriendsOfUser(Long userId) {
-        log.info(" список друзей {} ",  userId);
+        log.info(" список друзей {} ", userId);
         return friendsStorage.getFriendsOfUser(userId);
     }
 
@@ -64,7 +63,7 @@ public class UserService  {
 
     public void postFriend(Long id, Long friendId) {
         log.info("Добавлен в друзья {} ", friendId);
-        friendsStorage.addFriend(id, friendId);
+        friendsStorage.postFriend(id, friendId);
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {

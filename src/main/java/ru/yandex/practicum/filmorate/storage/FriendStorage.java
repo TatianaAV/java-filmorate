@@ -8,8 +8,7 @@ public interface FriendStorage {
 
     void removeFriends(long userId, long friendId);
 
-    void addFriend(long userId, long friendId);
-
+    void postFriend(long userId, long friendId);
 
     List<User> getCommonFriends(long userId, long otherId);
 

@@ -1,17 +1,20 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Film {
-    @Id
+
     private long id;
     private String name;
     private String description;
@@ -46,32 +49,17 @@ public class Film {
         this.rate = rate;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Film film = (Film) o;
-        return name.equals(film.name);
+        return name.equals(film.name) && releaseDate.equals(film.releaseDate) && Objects.equals(mpa, film.mpa);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
-    }
-
-    @Override
-    public String toString() {
-        return "Film{" +
-                "id=" + id +'\n' +
-                ", name='" + name + '\n' +
-                ", description='" + description + '\n' +
-                ", releaseDate=" + releaseDate + '\n' +
-                ", duration=" + duration +'\n' +
-                ", rate=" + rate +'\n' +
-                ", mpa=" + mpa +'\n' +
-                ", genres=" + genres +'\n' +
-                '}';
+        return Objects.hash(name, releaseDate, mpa);
     }
 }
 

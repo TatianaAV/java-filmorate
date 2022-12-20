@@ -7,10 +7,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Genre {
-    private int id;
-   private String name;
 
-    public Genre(int id) {
-        this.id = id;
+    private int id;
+    private String name;
+
+    @Override
+    public String toString() {
+        return " id='" + id + '\'';
     }
 }

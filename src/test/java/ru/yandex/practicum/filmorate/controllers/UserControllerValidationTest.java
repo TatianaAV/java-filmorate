@@ -88,16 +88,6 @@ public class UserControllerValidationTest {
         Assertions.assertFalse(exception.getMessage().isBlank());
     }
 
-   /* @Test
-    void testUserExceptionLNameNull() {
-        User user = new User("yandex@mail.ru", "doloreUllamco",
-                null,
-                LocalDate.of(1945, 8, 25));
-        User user1 = usereService.validation(user);
-
-        Assertions.assertEquals(user.getLogin(), user1.getName());
-    }*/
-
     @Test
     void testUserExceptionDateOfBirthday() {
         ValidationException exception =

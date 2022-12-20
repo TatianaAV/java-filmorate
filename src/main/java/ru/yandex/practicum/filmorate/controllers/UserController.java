@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -18,37 +17,36 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> findAll() {
+    public List<User> getAll() {
         log.info("\n == GetMapping: список users ==");
-        return userService.findAll();
+        return userService.getAll();
     }
 
     @PostMapping()
     public User create(@RequestBody User user) {
         log.info("\n == PostMapping: createUser {} ==", user);
-        return userService.createUser(user);
+        return userService.create(user);
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) {
+    public User update(@RequestBody User user) {
         log.info("\n == PutMapping:  {} ==", user.getLogin());
-        return userService.updateUser(user);
+        return userService.update(user);
     }
 
     @GetMapping(value = "/{id}")
-    public Optional<User> getUserById(@PathVariable("id") Long userId) {
+    public User getById(@PathVariable("id") Long userId) {
         log.info("\n == GetMapping: пользователь {} ==", userId);
-        return userService.getUserById(userId);
+        return userService.getById(userId);
     }
 
     //GET /users/{id}/friends/common/{otherId} — список друзей, общих с другим пользователем.
     @GetMapping(value = "/{id}/friends/common/{otherId}")
-    public List<User> getListOfFriendsAssociatedWithOtherUsers(@PathVariable("id") Long userId,
-                                                               @PathVariable("otherId") Long otherId) {
+    public List<User> getCommonFriends(@PathVariable("id") Long userId,
+                                       @PathVariable("otherId") Long otherId) {
         log.info("\n == GetMapping: список друзей общих с другими пользователями {} ==", userId + ", " + otherId);
         return userService.getCommonFriends(userId, otherId);
     }
-
 
     // GET /users/{id}/friends — возвращаем список пользователей, являющихся его друзьями.
     @GetMapping(value = "/{id}/friends")
@@ -74,7 +72,7 @@ public class UserController {
     @DeleteMapping
     public void delete(@RequestBody User user) {
         log.info("\n == DeleteMapping:  {} ==", user.getLogin());
-       userService.deleteUser(user);
+        userService.delete(user);
     }
 }
 

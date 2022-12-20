@@ -10,13 +10,9 @@ public class MPA {
     private int id;
     private String name;
 
-    public MPA(int mpaId) {
-        this.id=mpaId;
-    }
-
     @Override
     public String toString() {
-        return name;
+        return String.valueOf(id);
     }
 
     /* G ("G"),
