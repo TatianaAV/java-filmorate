@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -20,10 +21,9 @@ public class DbLikesStorage implements LikesStorage {
     @Override
     public void addLike(long filmId, long userId) {
         String sql = "merge into likes (film_id, USER_ID) values (?, ?)";
-
         jdbcTemplate.update(sql, filmId, userId);
         log.info("Фильму  {}, поставил лайк пользователь {}", filmId, userId);
-        updateRate();
+        updateRate(filmId);
     }
 
     @Override
@@ -34,12 +34,13 @@ public class DbLikesStorage implements LikesStorage {
         if (row != 1) {
             throw new ObjectNotFoundException("Фильм  s% или Пользователь s% не существуют" + filmId + userId);
         }
-        updateRate();
+        updateRate(filmId);
     }
 
-    private void updateRate() {
-        String sql = "update films f set rate = (select count(l.USER_ID) from likes l where l.film_id = f.FILM_ID)";
-        jdbcTemplate.update(sql);
+    private void updateRate(long filmId) {
+        String sql = "update films f set rate = (select count(l.USER_ID) from likes l where l.film_id = f.FILM_ID ) " +
+                "where f.FILM_ID = ?";
+        jdbcTemplate.update(sql, filmId);
     }
 }
 

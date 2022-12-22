@@ -16,7 +16,6 @@ public class UserService {
     private final UserStorage userStorage;
     private final FriendStorage friendsStorage;
 
-
     public UserService(Validation validation, UserStorage userStorage, FriendStorage friendsStorage) {
         this.validation = validation;
         this.userStorage = userStorage;
@@ -50,10 +49,9 @@ public class UserService {
         userStorage.delete(user);
     }
 
-
     public List<User> getFriendsOfUser(Long userId) {
         log.info(" список друзей {} ", userId);
-        return friendsStorage.getFriendsOfUser(userId);
+        return userStorage.getFriendsOfUser(userId);
     }
 
     public void deleteFriendsOfUser(Long userId, Long friendId) {
@@ -68,7 +66,6 @@ public class UserService {
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
         log.info("Получить друзей {} юзера  {} ", otherId, userId);
-        return friendsStorage.getCommonFriends(userId, otherId);
+        return userStorage.getCommonFriends(userId, otherId);
     }
-
 }

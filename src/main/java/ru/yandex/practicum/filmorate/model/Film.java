@@ -22,7 +22,7 @@ public class Film {
     private long duration;
     private int rate;//count likes
     private MPA mpa;
-    private Set<Genre> genres = new TreeSet<>(Comparator.comparing(Genre::getId).reversed());
+    private Set<Genre> genres = new TreeSet<>(Comparator.comparing(Genre::getId));
 
     public Film(long filmId, String nameFilm, String description, LocalDate releaseDate, long duration, int rate) {
         this.id = filmId;

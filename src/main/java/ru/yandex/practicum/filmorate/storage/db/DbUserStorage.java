@@ -23,7 +23,6 @@ public class DbUserStorage implements UserStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
     @Override
     public List<User> getAll() {
         log.info("GET Текущее количество users List<User> findAll()");
@@ -31,7 +30,6 @@ public class DbUserStorage implements UserStorage {
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
     }
-
 
     @Override
     public User create(User user) {
@@ -58,7 +56,6 @@ public class DbUserStorage implements UserStorage {
         log.info("POST users пользователь добавлен: {}", user.getId());
         return user;
     }
-
 
     @Override
     public User update(User user) {
@@ -101,13 +98,36 @@ public class DbUserStorage implements UserStorage {
         return users.get(0);
     }
 
-    public static User makeUser(ResultSet userRows) throws SQLException {
+    @Override
+    public List<User> getFriendsOfUser(long userId) {
+        log.info(" DbFriendStorage Получить друзей  юзера  {} ", userId);
+        String sql = "select * " +
+                " from USERS U " +
+                " join FRIENDS F on F.FRIEND_ID = U.USER_ID " +
+                " where F.USER_ID = ? " +
+                " order by U.USER_ID";
+        List<User> users = jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId);
+        log.info("Друзья  юзера  {} ", users);
+        return users;
+    }
+
+    @Override
+    public List<User> getCommonFriends(long userId, long otherId) {
+        log.info(" DbFriendStorage getCommonFriends общих друзей друга {}  юзера  {} ", otherId, userId);
+        String sql = "SELECT U.USER_ID, USER_NAME, EMAIL,LOGIN,BIRTHDAY FROM USERS as U" +
+                " inner join FRIENDS F on U.USER_ID = F.FRIEND_ID" +
+                " INNER JOIN friends AS f2 ON f.friend_id = f2.friend_id" +
+                " WHERE f.user_id = ? AND f2.user_id = ?";
+        log.info("Cписок общих друзей пользователя {} и  {} ", userId, otherId);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId, otherId);
+    }
+
+    private static User makeUser(ResultSet userRows) throws SQLException {
         return new User(
                 userRows.getLong("user_id"),
                 userRows.getString("email"),
                 userRows.getString("login"),
                 userRows.getString("user_name"),
-                userRows.getDate("birthday").toLocalDate()
-        );
+                userRows.getDate("birthday").toLocalDate());
     }
 }

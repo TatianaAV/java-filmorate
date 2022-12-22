@@ -15,7 +15,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/genres")
-public class GenresControllers {
+public class GenresController {
 
     private final GenresService genresService;
 

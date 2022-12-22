@@ -18,9 +18,7 @@ public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
-    public Film
-    create(@RequestBody
-           Film film) {
+    public Film create(@RequestBody Film film) {
         log.info("\n == PostMapping: Фильм  {} ==", film.getName());
         filmService.create(film);
         return film;
@@ -57,7 +55,6 @@ public class FilmController {
     }
 
     //PUT /films/{id}/like/{userId} — пользователь ставит лайк фильму.
-
     @PutMapping("/{id}/like/{userId}")
     public void createLike(@PathVariable("id") long id, @PathVariable("userId") long userId) {
         log.info("\n == PutMapping: Like user {} с film {}==", userId, id);

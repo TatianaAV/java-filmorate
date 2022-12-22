@@ -40,7 +40,7 @@ public class ErrorHandler {
         return new ErrorResponse(ex.getMessage());
     }
 
-    @ExceptionHandler({SQLException.class, DataAccessException.class, Throwable.class})
+    @ExceptionHandler({SQLException.class, DataAccessException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse databaseError(HttpServletRequest request, Exception ex) {
         log.error("Requested URL=" + request.getRequestURL());
