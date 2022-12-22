@@ -3,8 +3,7 @@
 # sqlRev
 
 <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="src/main/resources/readme/sqlRevPngDark.png">
-    <source media="(prefers-color-scheme: light)" srcset="src/main/resources/readme/sqlRevPng.png">
+    <source media="(prefers-color-scheme: light)" srcset="resources/schemalight.png">
     <img alt="Shows an illustrated sun in light mode and a moon with stars in dark mode." 
     src="src/main/resources/readme/sqlRevPng.png">
 </picture>  
