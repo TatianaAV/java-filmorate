@@ -52,7 +52,6 @@ public class DbGenreStorage implements GenreStorage {
     private static Genre makeGenre(ResultSet rs, int rowNum) throws SQLException {
         int id = rs.getInt("genre_id");
         String name = rs.getString("name");
-
         return new Genre(id, name);
     }
 }

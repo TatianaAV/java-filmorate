@@ -61,6 +61,10 @@ public class Film {
     public int hashCode() {
         return Objects.hash(name, releaseDate, mpa);
     }
+
+    public void addGenre(Genre genre) {
+        genres.add(genre);
+    }
 }
 
 

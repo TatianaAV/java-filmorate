@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserAlreadyExistException;
@@ -20,6 +19,8 @@ import java.sql.Date;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
+
 
 @Slf4j
 @Component
@@ -88,7 +89,9 @@ public class DbFilmStorage implements FilmStorage {
         String sql = "select film_id, name_film, description, release_date, duration, rate, F.MPA_ID as MPA_ID, M.NAME as NAME" +
                 "                 from FILMS F" +
                 "               left join MPA M on F.MPA_ID = M.MPA_ID";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
+        List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
+        loadFilmsGenres(films);
+        return films;
     }
 
     @Override
@@ -103,6 +106,7 @@ public class DbFilmStorage implements FilmStorage {
             throw new FilmNotFoundException("Not Found film id = " + filmId);
         }
         log.info("filmStorage getFilmById(long filmId)");
+        loadFilmsGenres(films);
         return films.get(0);
     }
 
@@ -114,7 +118,9 @@ public class DbFilmStorage implements FilmStorage {
                 "     from FILMS F " +
                 "     left join MPA M on F.MPA_ID = M.MPA_ID " +
                 "     order by RATE desc limit ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+        List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+        loadFilmsGenres(films);
+        return films;
     }
 
     private Film makeFilm(ResultSet resultSet) throws SQLException {
@@ -130,22 +136,29 @@ public class DbFilmStorage implements FilmStorage {
         film.setMpa(
                 new MPA(resultSet.getInt("mpa_id"),
                         resultSet.getString("name")));
-        setGenresFilm(film);//все жанры для фильма
         return film;
     }
 
-    private void setGenresFilm(Film film) {//все жанры
-        TreeSet<Genre> genresFilm = new TreeSet<>(Comparator.comparing(Genre::getId));
-        SqlRowSet rs = jdbcTemplate.queryForRowSet(
-                "select FILM_ID, G.GENRE_ID, G.NAME from GENRE G " +
-                        "left join FILM_GENRE FG on G.GENRE_ID = FG.GENRE_ID " +
-                        "where FILM_ID = ? order by G.GENRE_ID", film.getId());
-        while (rs.next()) {
-            genresFilm.add(
-                    new Genre(rs.getInt("genre_id"), rs.getString("name")));
-            film.setGenres(genresFilm);
-        }
+    private void loadFilmsGenres(List<Film> films) throws DataAccessException {
+        final List<Long> ids = films.stream().map(Film::getId).collect(Collectors.toList());
+        String inSql = String.join(",", Collections.nCopies(ids.size(), "?"));
+        jdbcTemplate.query(
+                String.format("select FILM_ID, G.* from GENRE G " +
+                        "                        left join FILM_GENRE FG on G.GENRE_ID = FG.GENRE_ID " +
+                        "                        where FILM_ID in (%s)", inSql),
+                ids.toArray(),
+                (rs, rowNum) -> makeFilmList(rs, films));
     }
+
+    private Film makeFilmList(ResultSet rs, List<Film> films) throws SQLException {
+        long filmId = rs.getLong("film_id");
+        int genreId = rs.getInt("genre_id");
+        String name = rs.getString("name");
+        final Map<Long, Film> filmMap = films.stream().collect(Collectors.toMap(Film::getId, film -> film));
+        filmMap.get(filmId).addGenre(new Genre(genreId, name));
+        return filmMap.get(filmId);
+    }
+
 
     private void saveGenre(Film film) {
         final Long filmId = film.getId();

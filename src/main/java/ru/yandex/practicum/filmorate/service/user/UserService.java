@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controllers.Validation;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.*;
 
@@ -55,6 +56,9 @@ public class UserService {
     }
 
     public void deleteFriendsOfUser(Long userId, Long friendId) {
+        if(userId == null || friendId == null) {
+            throw new UserNotFoundException("Пользователь не идентифицирован");
+        }
         log.info("юзер {} удален из списка друзей {} ", friendId, userId);
         friendsStorage.removeFriends(userId, friendId);
     }
@@ -66,6 +70,9 @@ public class UserService {
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
         log.info("Получить друзей {} юзера  {} ", otherId, userId);
+        if(userId == null || otherId == null) {
+            throw new UserNotFoundException("Пользователь не идентифицирован");
+        }
         return userStorage.getCommonFriends(userId, otherId);
     }
 }
