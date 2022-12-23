@@ -17,62 +17,62 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> findAll() {
+    public List<User> getAll() {
         log.info("\n == GetMapping: список users ==");
-        return userService.findAll();
+        return userService.getAll();
     }
 
     @PostMapping
     public User create(@RequestBody User user) {
-        log.info("\n == PostMapping: createUser {} ==" , user);
-        return userService.createUser(user);
+        log.info("\n == PostMapping: createUser {} ==", user);
+        return userService.create(user);
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) {
+    public User update(@RequestBody User user) {
         log.info("\n == PutMapping:  {} ==", user.getLogin());
-        return userService.updateUser(user);
+        return userService.update(user);
     }
 
-    @GetMapping(value ="/{id}")
-    public User getUserById(@PathVariable("id") Long userId) {
-        log.info("\n == GetMapping: пользователь {} ==", userId );
-        return userService.getUserById(userId);
+    @GetMapping(value = "/{id}")
+    public User getById(@PathVariable("id") Long userId) {
+        log.info("\n == GetMapping: пользователь {} ==", userId);
+        return userService.getById(userId);
     }
 
     //GET /users/{id}/friends/common/{otherId} — список друзей, общих с другим пользователем.
     @GetMapping(value = "/{id}/friends/common/{otherId}")
-    public List<User> getListOfFriendsAssociatedWithOtherUsers(@PathVariable("id") Long userId,
-                                                               @PathVariable("otherId") Long otherId) {
+    public List<User> getCommonFriends(@PathVariable("id") Long userId,
+                                       @PathVariable("otherId") Long otherId) {
         log.info("\n == GetMapping: список друзей общих с другими пользователями {} ==", userId + ", " + otherId);
-        return userService.getListOfFriendsAssociatedWithOtherUsers(userId, otherId);
+        return userService.getCommonFriends(userId, otherId);
     }
 
     // GET /users/{id}/friends — возвращаем список пользователей, являющихся его друзьями.
     @GetMapping(value = "/{id}/friends")
     public List<User> getFriendsOfUser(@PathVariable("id") Long userId) {
-        log.info("\n == GetMapping: список друзей юзера {} ==", userId );
+        log.info("\n == GetMapping: список друзей юзера {} ==", userId);
         return userService.getFriendsOfUser(userId);
     }
 
     // PUT /users/{id}/friends/{friendId} — добавление в друзья.
     @PutMapping(value = "/{id}/friends/{friendId}")
-    public User postFriend(@PathVariable("id") Long userId, @PathVariable Long friendId) {
-        log.info("\n == PutMapping: добавление в друзья {} ==", userId + " friend " + friendId );
-        return userService.postFriend(userId, friendId);
+    public void postFriend(@PathVariable("id") Long userId, @PathVariable Long friendId) {
+        log.info("\n == PutMapping: добавление в друзья {} ==", userId + " friend " + friendId);
+        userService.postFriend(userId, friendId);
     }
 
     //  DELETE /users/{id}/friends/{friendId} — удаление из друзей.
     @DeleteMapping(value = "/{id}/friends/{friendId}")
-    public User deleteFriendsOfUser(@PathVariable("id") Long userId, @PathVariable("friendId") Long friendId) {
-        log.info("\n == DeleteMapping: удаление из друзей {} ==", userId + " friend " + friendId );
-        return userService.deleteFriendsOfUser(userId, friendId);
+    public void deleteFriendsOfUser(@PathVariable("id") Long userId, @PathVariable("friendId") Long friendId) {
+        log.info("\n == DeleteMapping: удаление из друзей {} ==", userId + " friend " + friendId);
+        userService.deleteFriendsOfUser(userId, friendId);
     }
 
     @DeleteMapping
-    public void deleteUser(@RequestBody User user)  {
-        log.info("\n == DeleteMapping: удаление пользователя {} ==", user.getEmail() );
-       userService.deleteUser(user);
+    public void delete(@RequestBody User user) {
+        log.info("\n == DeleteMapping:  {} ==", user.getLogin());
+        userService.delete(user);
     }
 }
 

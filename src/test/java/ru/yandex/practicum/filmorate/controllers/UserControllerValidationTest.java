@@ -1,18 +1,19 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserControllerValidationTest {
-    InMemoryUserStorage valid = new InMemoryUserStorage();
+    Validation validation = new Validation();
 
     @Test
     void testUserExceptionEmailNull() {
@@ -22,7 +23,7 @@ public class UserControllerValidationTest {
                             User user = new User(null,
                                     "JohnDow", "John Dow",
                                     LocalDate.of(1945, 8, 25));
-                            valid.validationUser(user);
+                            validation.validation(user);
                         });
         Assertions.assertNotNull(exception.getMessage());
         Assertions.assertFalse(exception.getMessage().isBlank());
@@ -34,7 +35,7 @@ public class UserControllerValidationTest {
                 assertThrows(
                         ValidationException.class, () -> {
                             User user = new User("      ", "JohnDow", "John Dow", LocalDate.of(1945, 8, 25));
-                            valid.validationUser(user);
+                            validation.validation(user);
                         });
         Assertions.assertNotNull(exception.getMessage());
         Assertions.assertFalse(exception.getMessage().isBlank());
@@ -44,7 +45,7 @@ public class UserControllerValidationTest {
     void testUserExceptionEmailNotAt() {
         ValidationException exception =
                 assertThrows(
-                        ValidationException.class, () -> valid.validationUser(new User("yandex.ru",
+                        ValidationException.class, () -> validation.validation(new User("yandex.ru",
                                 "JohnDow", "John Dow", LocalDate.of(1945, 8, 25))));
         Assertions.assertNotNull(exception.getMessage());
         Assertions.assertFalse(exception.getMessage().isBlank());
@@ -55,7 +56,7 @@ public class UserControllerValidationTest {
         ValidationException exception =
                 assertThrows(
                         ValidationException.class, () -> {
-                            valid.validationUser(new User("mail@yandex.ru", null, "John Dow", LocalDate.of(1945, 8, 25)));
+                            validation.validation(new User("mail@yandex.ru", null, "John Dow", LocalDate.of(1945, 8, 25)));
                         });
         Assertions.assertNotNull(exception.getMessage());
         Assertions.assertFalse(exception.getMessage().isBlank());
@@ -66,7 +67,7 @@ public class UserControllerValidationTest {
         ValidationException exception =
                 assertThrows(
                         ValidationException.class, () -> {
-                            valid.validationUser(new User("yandex@mail.ru", " ",
+                            validation.validation(new User("yandex@mail.ru", " ",
                                     null,
                                     LocalDate.of(1945, 8, 25)));
                         });
@@ -79,7 +80,7 @@ public class UserControllerValidationTest {
         ValidationException exception =
                 assertThrows(
                         ValidationException.class, () -> {
-                            valid.validationUser(new User("yandex@mail.ru", "dolore ullamco",
+                            validation.validation(new User("yandex@mail.ru", "dolore ullamco",
                                     null,
                                     LocalDate.of(1945, 8, 25)));
                         });
@@ -88,21 +89,11 @@ public class UserControllerValidationTest {
     }
 
     @Test
-    void testUserExceptionLNameNull() {
-        User user = new User("yandex@mail.ru", "doloreUllamco",
-                null,
-                LocalDate.of(1945, 8, 25));
-        User user1 = valid.validationUser(user);
-
-        Assertions.assertEquals(user.getLogin(), user1.getName());
-    }
-
-    @Test
     void testUserExceptionDateOfBirthday() {
         ValidationException exception =
                 assertThrows(
                         ValidationException.class, () -> {
-                            valid.validationUser(new User("yandex@mail.ru", "doloreUllamco",
+                            validation.validation(new User("yandex@mail.ru", "doloreUllamco",
                                     null,
                                     LocalDate.of(2458, 8, 25)));
                         });

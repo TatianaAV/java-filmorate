@@ -1,17 +1,20 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class FilmControllerTest {
-    private final InMemoryFilmStorage valid = new InMemoryFilmStorage();
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+public class FilmControllerValidationTest {
+
+    Validation validation = new Validation();
 
     @Test
     void testFilmExceptionNameNull() {
@@ -20,9 +23,8 @@ public class FilmControllerTest {
                         ValidationException.class, () -> {
                             Film film = new Film(null,
                                     "radicalising",
-                                    LocalDate.of(1967, 3, 25),
-                                    100);
-                            valid.validationFilm(film);
+                                    LocalDate.of(1967, 3, 25), 100);
+                            validation.validation(film);
                         });
         Assertions.assertNotNull(exception.getMessage());
         Assertions.assertFalse(exception.getMessage().isBlank());
@@ -37,7 +39,7 @@ public class FilmControllerTest {
                                     "radicalising",
                                     LocalDate.of(1967, 3, 25),
                                     100);
-                            valid.validationFilm(film);
+                            validation.validation(film);
                         });
         Assertions.assertNotNull(exception.getMessage());
         Assertions.assertFalse(exception.getMessage().isBlank());
@@ -55,7 +57,7 @@ public class FilmControllerTest {
                                             "«своего отсутствия», стал кандидатом Коломбани.",
                                     LocalDate.of(1900, 3, 25),
                                     100L);
-                            valid.validationFilm(film);
+                            validation.validation(film);
                         });
         Assertions.assertNotNull(exception.getMessage());
         Assertions.assertFalse(exception.getMessage().isBlank());
@@ -70,7 +72,7 @@ public class FilmControllerTest {
                                     null,
                                     LocalDate.of(1900, 3, 25),
                                     100L);
-                            valid.validationFilm(film);
+                            validation.validation(film);
                         });
         Assertions.assertNotNull(exception.getMessage());
         Assertions.assertFalse(exception.getMessage().isBlank());
@@ -85,7 +87,7 @@ public class FilmControllerTest {
                                     "Description",
                                     LocalDate.of(1980, 3, 25),
                                     -200);
-                            valid.validationFilm(film);
+                            validation.validation(film);
                         });
         Assertions.assertNotNull(exception.getMessage());
         Assertions.assertFalse(exception.getMessage().isBlank());
@@ -100,22 +102,10 @@ public class FilmControllerTest {
                                     "Description",
                                     LocalDate.of(1890, 3, 25),
                                     200);
-                            valid.validationFilm(film);
+                            validation.validation(film);
                         });
         Assertions.assertNotNull(exception.getMessage());
         Assertions.assertFalse(exception.getMessage().isBlank());
-    }
-
-    @Test
-    void testFilmValidation() {
-        Film film = new Film("nisi eiusmod",
-                "adipisicing",
-                LocalDate.of(1967, 3, 25),
-                100
-        );
-        Film film1 = valid.validationFilm(film);
-
-        Assertions.assertEquals(film.getName(), film1.getName());
     }
 }
 
